@@ -30,18 +30,20 @@ async function run() {
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
-    const blogsCollection = client.db('Travel-blog').collection('Blogs')
+    const blogsCollection = client.db('Blogs-collection').collection('Blogs')
     // blogs server get request
     app.get('/blogs', async (req, res) => {
       const result = await blogsCollection.find().toArray();
       res.send(result)
     })
-    // blogs post request
-    app.post('/blogs', async (req, res) => {
+
+    // blogs save post request
+    app.post('/add-blogs', async (req, res) => {
       const blog = req.body;
       const result = await blogsCollection.insertOne(blog)
       res.send(result)
     })
+    
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
