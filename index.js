@@ -35,7 +35,15 @@ async function run() {
     const commentCollection = client.db('Blogs-collection').collection('comment')
     // blogs server get request
     app.get('/blogs', async (req, res) => {
-      const result = await blogsCollection.find().toArray();
+      const filter = req.query.filter;
+      const search = req.query.search;
+      let query = {
+        title:{
+          $regex: search, $options: 'i'
+        }
+      }
+      if (filter) query.category=filter
+      const result = await blogsCollection.find(query).toArray();
       res.send(result)
     })
 
