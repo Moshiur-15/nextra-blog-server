@@ -31,9 +31,16 @@ async function run() {
 
 
     const blogsCollection = client.db('Blogs-collection').collection('Blogs')
+    const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
     // blogs server get request
     app.get('/blogs', async (req, res) => {
       const result = await blogsCollection.find().toArray();
+      res.send(result)
+    })
+
+    // wishlist server get request
+    app.get('/wishlist', async (req, res) => {
+      const result = await wishlistCollection.find().toArray();
       res.send(result)
     })
 
@@ -41,6 +48,13 @@ async function run() {
     app.post('/add-blogs', async (req, res) => {
       const blog = req.body;
       const result = await blogsCollection.insertOne(blog)
+      res.send(result)
+    })
+
+    // wishlist save post request
+    app.post('/add-wishlist', async (req, res) => {
+      const wishlist = req.body;
+      const result = await wishlistCollection.insertOne(wishlist)
       res.send(result)
     })
     
