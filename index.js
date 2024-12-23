@@ -32,6 +32,7 @@ async function run() {
 
     const blogsCollection = client.db('Blogs-collection').collection('Blogs')
     const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
+    const commentCollection = client.db('Blogs-collection').collection('comment')
     // blogs server get request
     app.get('/blogs', async (req, res) => {
       const result = await blogsCollection.find().toArray();
@@ -41,6 +42,12 @@ async function run() {
     // wishlist server get request
     app.get('/wishlist', async (req, res) => {
       const result = await wishlistCollection.find().toArray();
+      res.send(result)
+    })
+
+    // comment server get request
+    app.get('/comment', async (req, res) => {
+      const result = await commentCollection.find().toArray();
       res.send(result)
     })
 
@@ -57,12 +64,27 @@ async function run() {
       const result = await wishlistCollection.insertOne(wishlist)
       res.send(result)
     })
+
+    // comment save post request
+    app.post('/add-comment', async (req, res) => {
+      const comment = req.body;
+      const result = await commentCollection.insertOne(comment)
+      res.send(result)
+    })
     
     // blogs details post request
     app.get('/blog-details/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id:new ObjectId(id) }
       const result = await blogsCollection.findOne(query)
+      res.send(result)
+    })
+
+    // comment get request
+    app.get('/comments/:id', async (req, res) => {
+      const blogId  = req.params.id
+      const query = {blog_id: blogId }
+      const result = await commentCollection.find(query).toArray();
       res.send(result)
     })
     
