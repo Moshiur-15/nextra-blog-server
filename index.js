@@ -73,7 +73,7 @@ async function run() {
     })
     
     // blogs details post request
-    app.get('/blog-details/:id', async (req, res) => {
+    app.get('/unique-blog/:id', async (req, res) => {
       const id = req.params.id
       const query = { _id:new ObjectId(id) }
       const result = await blogsCollection.findOne(query)
@@ -85,6 +85,19 @@ async function run() {
       const blogId  = req.params.id
       const query = {blog_id: blogId }
       const result = await commentCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    // update blogs
+    app.put('/unique-blog/:id', async (req, res) => {
+      const id = req.params.id;
+      const updateBlog = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: updateBlog,
+      }
+      const result = await blogsCollection.updateOne(filter, updateDoc, options);
       res.send(result)
     })
     
