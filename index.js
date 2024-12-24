@@ -33,13 +33,15 @@ async function run() {
     const blogsCollection = client.db('Blogs-collection').collection('Blogs')
     const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
     const commentCollection = client.db('Blogs-collection').collection('comment')
+    
     // blogs server get request
     app.get('/blogs', async (req, res) => {
       const filter = req.query.filter;
-      const search = req.query.search;
+      const search = req.query.search || '';
       let query = {
         title:{
-          $regex: search, $options: 'i'
+          $regex: search,
+          $options: 'i'
         }
       }
       if (filter) query.category=filter
