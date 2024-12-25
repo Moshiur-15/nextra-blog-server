@@ -1,14 +1,33 @@
 require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser')
 const app = express()
 const port = process.env.PORT || 3000
 
-app.use(cors())
+
+app.use(cors({
+  origin: ['http://localhost:5174'],
+  credentials:true
+}))
 app.use(express.json())
+app.use(cookieParser())
+
+// validate token
+const verify =(req, res, next)=>{
+  const token = req.cookies?.token
+  if(!token) return res.status(401).send({message: 'You are not authenticated'})
+  jwt.verify(token, process.env.DB_JWT_SECURE, function(err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: 'Invalid token' })
+    }
+    req.body = decoded
+    next()
+  });
+}
 
 // mongodb connect
-
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zswhz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -34,6 +53,22 @@ async function run() {
     const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
     const commentCollection = client.db('Blogs-collection').collection('comment')
     
+    // create jwt token
+    app.post('/jwt', async(req, res)=>{
+      const user = req.body;
+      const token = jwt.sign(user, process.env.DB_JWT_SECURE ,{expiresIn:'1hr'})
+      res
+      .cookie('token', token,{
+        httpOnly: true,
+        secure:false
+      })
+      .send({success:true})
+    })
+    // sign out and token delete
+    app.post('/signOut', (req, res) => {
+      res.clearCookie('token', { httpOnly: true, secure: false }).send({success:true});
+    })
+
     // blogs server get request
     app.get('/blogs', async (req, res) => {
       const filter = req.query.filter;
