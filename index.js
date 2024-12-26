@@ -22,7 +22,7 @@ const verify =(req, res, next)=>{
     if (err) {
       return res.status(403).send({ message: 'Invalid token' })
     }
-    req.body = decoded
+    req.user = decoded
     next()
   });
 }
@@ -52,6 +52,7 @@ async function run() {
     const blogsCollection = client.db('Blogs-collection').collection('Blogs')
     const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
     const commentCollection = client.db('Blogs-collection').collection('comment')
+   
     // Jwt Token
     // create jwt token
     app.post('/jwt', async(req, res)=>{
@@ -64,6 +65,7 @@ async function run() {
       })
       .send({success:true})
     })
+
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
@@ -86,12 +88,14 @@ async function run() {
       const result = await blogsCollection.find(query).toArray();
       res.send(result)
     })
+    
     // blogs save post request
-    app.post('/add-blogs', async (req, res) => {
+    app.post('/add-blogs', verify, async (req, res) => {
       const blog = req.body;
       const result = await blogsCollection.insertOne(blog)
       res.send(result)
     })
+
     // blogs details post request
     app.get('/unique-blog/:id', async (req, res) => {
       const id = req.params.id
@@ -100,7 +104,7 @@ async function run() {
       res.send(result)
     })
     // update blogs
-    app.put('/unique-blog/:id', async (req, res) => {
+    app.put('/update-blog/:id', verify, async (req, res) => {
       const id = req.params.id;
       const updateBlog = req.body;
       const filter = { _id: new ObjectId(id) };
@@ -126,7 +130,7 @@ async function run() {
     })
 
     // user wishlist data
-    app.get('/wishlist/:email', async (req, res) => {
+    app.get('/wishlist/:email', verify, async (req, res) => {
       const email = req.params.email
       const query ={email: email}
       const result = await wishlistCollection.find(query).toArray();
