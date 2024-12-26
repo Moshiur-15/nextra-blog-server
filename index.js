@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3001'],
+  origin: ['http://localhost:5173', 'http://localhost:5174','https://nextera-blog.netlify.app/'],
   credentials: true
 }))
 app.use(express.json())
@@ -87,6 +87,17 @@ async function run() {
       if (filter) query.category=filter
       const result = await blogsCollection.find(query).toArray();
       res.send(result)
+    })
+
+    app.get('/feature', async (req, res) => {
+      const Featured = await blogsCollection.find().toArray();
+      const shortedFeatured=Featured.map(f=>({
+        ...f,
+        count:f.longDescription?.split(' ').length||0,
+      }))
+      .sort((a,b)=>b.count-a.count)
+      .slice(0,10)
+      res.send(shortedFeatured)
     })
     
     // blogs save post request
