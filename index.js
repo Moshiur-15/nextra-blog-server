@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174','https://nextera-blog.netlify.app/'],
+  origin: ['http://localhost:5173', 'http://localhost:5174','https://nextera-blog-me.netlify.app'],
   credentials: true
 }))
 app.use(express.json())
@@ -26,7 +26,7 @@ const verify =(req, res, next)=>{
     next()
   });
 }
-
+   
 // mongodb connect
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.zswhz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
@@ -61,7 +61,7 @@ async function run() {
       res
       .cookie('token', token,{
         httpOnly: true,
-        secure:false
+        secure: process.env.NODE_ENV === "production",
       })
       .send({success:true})
     })
@@ -69,7 +69,7 @@ async function run() {
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
-      .clearCookie('token', { httpOnly: true, secure: false })
+      .clearCookie('token', { httpOnly: true,  secure: process.env.NODE_ENV === "production", })
       .send({success:true});
     })
 
