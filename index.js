@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174','https://nextera-blog-me.netlify.app'],
+  origin: ['http://localhost:3000','http://localhost:5173', 'http://localhost:5173','https://nextera-blog-me.netlify.app'],
   credentials: true
 }))
 app.use(express.json())
@@ -17,7 +17,8 @@ app.use(cookieParser())
 // validate token
 const verify =(req, res, next)=>{
   const token = req.cookies?.token
-  if(!token) return res.status(401).send({message: 'You are not authenticated'})
+  console.log(token)
+  if(!token) return res.status(401).send({message: 'done'})
   jwt.verify(token, process.env.DB_JWT_SECURE, function(err, decoded) {
     if (err) {
       return res.status(403).send({ message: 'Invalid token' })
@@ -43,9 +44,9 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.connect();
+    // // Send a ping to confirm a successful connection
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
@@ -57,11 +58,12 @@ async function run() {
     // create jwt token
     app.post('/jwt', async(req, res)=>{
       const user = req.body;
-      const token = jwt.sign(user, process.env.DB_JWT_SECURE ,{expiresIn:'1hr'})
+      const token = jwt.sign(user, process.env.DB_JWT_SECURE ,{expiresIn:'12hr'})
       res
       .cookie('token', token,{
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
       })
       .send({success:true})
     })
@@ -69,7 +71,11 @@ async function run() {
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
-      .clearCookie('token', { httpOnly: true,  secure: process.env.NODE_ENV === "production", })
+      .clearCookie('token', { 
+        httpOnly: true,  
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
+       })
       .send({success:true});
     })
 
@@ -141,8 +147,14 @@ async function run() {
     })
 
     // user wishlist data
-    app.get('/wishlist/:email', verify, async (req, res) => {
+    app.get('/wishlist/:email',verify, async (req, res) => {
       const email = req.params.email
+      if (req.user.email !== email) {
+        return res.status(403).send({ message: 'Access denied! Email mismatch.' });
+      }
+      console.log(req.user.email)
+      console.log(email)
+
       const query ={email: email}
       const result = await wishlistCollection.find(query).toArray();
       res.send(result)
