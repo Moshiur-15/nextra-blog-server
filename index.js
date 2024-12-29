@@ -149,12 +149,9 @@ async function run() {
     // user wishlist data
     app.get('/wishlist/:email',verify, async (req, res) => {
       const email = req.params.email
-      if (req.user.email !== email) {
+      if (req.user.email !== req.params.email) {
         return res.status(403).send({ message: 'Access denied! Email mismatch.' });
       }
-      console.log(req.user.email)
-      console.log(email)
-
       const query ={email: email}
       const result = await wishlistCollection.find(query).toArray();
       res.send(result)
