@@ -67,7 +67,6 @@ async function run() {
       })
       .send({success:true})
     })
-
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
@@ -105,7 +104,6 @@ async function run() {
       .slice(0,10)
       res.send(shortedFeatured)
     })
-    
     // blogs save post request
     app.post('/add-blogs', verify, async (req, res) => {
       const blog = req.body;
@@ -164,7 +162,6 @@ async function run() {
       res.send(result)
     })
 
-
     // commentCollection  
     // comment server get request
     app.get('/comment', async (req, res) => {
@@ -186,8 +183,7 @@ async function run() {
     })
     
   } finally {
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+
   }
 }
 run().catch(console.dir);
