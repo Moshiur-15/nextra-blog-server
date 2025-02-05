@@ -62,7 +62,6 @@ async function run() {
       })
       .send({success:true})
     })
-    
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
@@ -73,7 +72,6 @@ async function run() {
        })
       .send({success:true});
     })
-
     // blogsCollection 
     // blogs server get request
     app.get('/blogs', async (req, res) => {
@@ -89,7 +87,6 @@ async function run() {
       const result = await blogsCollection.find(query).toArray();
       res.send(result)
     })
-
     app.get('/feature', async (req, res) => {
       const Featured = await blogsCollection.find().toArray();
       const shortedFeatured=Featured.map(f=>({
@@ -106,7 +103,6 @@ async function run() {
       const result = await blogsCollection.insertOne(blog)
       res.send(result)
     })
-
     // blogs details post request
     app.get('/unique-blog/:id', async (req, res) => {
       const id = req.params.id
