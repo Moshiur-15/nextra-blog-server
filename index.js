@@ -43,12 +43,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
-    // await client.connect();
-    // // Send a ping to confirm a successful connection
-    // await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-
+    console.log("Pinged your deployment. You successfully connected to MongoDB!")
 
     const blogsCollection = client.db('Blogs-collection').collection('Blogs')
     const wishlistCollection = client.db('Blogs-collection').collection('wishlist')
@@ -67,6 +62,7 @@ async function run() {
       })
       .send({success:true})
     })
+    
     // sign out and token delete
     app.post('/signOut', (req, res) => {
       res
@@ -168,12 +164,14 @@ async function run() {
       const result = await commentCollection.find().toArray();
       res.send(result)
     })
+
     // comment save post request
     app.post('/add-comment', async (req, res) => {
       const comment = req.body;
       const result = await commentCollection.insertOne(comment)
       res.send(result)
     })
+
     // comment get request
     app.get('/comments/:id', async (req, res) => {
       const blogId  = req.params.id
